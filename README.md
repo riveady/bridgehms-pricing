@@ -3,6 +3,7 @@
 A lightweight front-end pricing estimator for healthcare/EMR deployments in Nigeria.
 
 The app calculates:
+
 - One-time setup/implementation cost
 - Recurring monthly subscription cost
 - Deployment recommendation (`Cloud`, `Hybrid`, `On-Premise`)
@@ -18,6 +19,7 @@ The app calculates:
 ## How Pricing Works
 
 Inputs from the UI:
+
 - `patientsPerMonth`
 - `servicePoints`
 - `staffCount`
@@ -47,12 +49,50 @@ setupCost = baseSetupCost
 ```
 
 Where:
+
 - `infrastructureAdjustments` adds `noNetwork` if `hasNetwork` is false and `unstablePower` if `stablePower` is false.
 - `trainingCost` comes from `trainingCosts[trainingLevel]`.
+
+Infrastructure adjustments are service-point aware. Each model can use:
+
+```text
+adjustmentCost = baseCost
+               + (servicePoints * perServicePointCost)
+               + (max(servicePoints - extraScalingThreshold, 0) * extraPerPointCost)
+```
+
+This reflects real deployment behavior where larger facility footprints usually require longer network runs, additional distribution equipment, and higher backup power capacity.
+
+Current infrastructure model values in `pricing-config.js`:
+
+- `noNetwork`
+- `baseCost: 1,800,000`
+- `perServicePointCost: 650,000`
+- `extraScalingThreshold: 6`
+- `extraPerPointCost: 180,000`
+
+- `unstablePower`
+- `baseCost: 1,200,000`
+- `perServicePointCost: 400,000`
+- `extraScalingThreshold: 4`
+- `extraPerPointCost: 150,000`
+
+Worked examples (when `hasNetwork = false` and `stablePower = false`):
+
+- `servicePoints = 2`
+- `noNetwork = 1,800,000 + (2 x 650,000) = 3,100,000`
+- `unstablePower = 1,200,000 + (2 x 400,000) = 2,000,000`
+- `infrastructureAdjustments total = 5,100,000`
+
+- `servicePoints = 8`
+- `noNetwork = 1,800,000 + (8 x 650,000) + (2 x 180,000) = 7,360,000`
+- `unstablePower = 1,200,000 + (8 x 400,000) + (4 x 150,000) = 5,000,000`
+- `infrastructureAdjustments total = 12,360,000`
 
 ### Deployment Recommendation
 
 Based on `patientsPerMonth` and `stablePower`:
+
 - `Cloud`: below `cloudPatientThreshold` and stable power
 - `Hybrid`: below `hybridPatientThreshold` otherwise
 - `On-Premise`: higher patient volume
@@ -62,6 +102,7 @@ Based on `patientsPerMonth` and `stablePower`:
 All pricing controls are centralized in `pricing-config.js`.
 
 Key configurable areas:
+
 - Base costs (`baseSetupCost`, `baseMonthlyCost`)
 - Patient scaling tiers (`patientTiers`)
 - Per-service-point and per-staff pricing
@@ -78,7 +119,6 @@ Because this uses ES modules, run it through a local web server (not `file://`).
 Option 1 (Python):
 
 ```bash
-cd /home/russell/projects/experiments/pricing
 python3 -m http.server 8080
 ```
 
@@ -89,6 +129,7 @@ http://localhost:8080
 ```
 
 Option 2 (VS Code Live Server):
+
 - Open the folder in VS Code
 - Start Live Server from `index.html`
 

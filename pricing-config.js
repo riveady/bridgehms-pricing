@@ -28,11 +28,35 @@ export const pricingConfig = {
     staffUserCost: 1200,
 
     // One-time setup surcharges for missing or unreliable facility infrastructure.
+    // These are modeled to scale with service points because larger footprints need
+    // more cable distance, switching, access points, and backup power capacity.
     infrastructureAdjustments: {
-        // Estimated LAN, switching, Wi-Fi, rack, and basic network installation cost for a site without internal networking.
-        noNetwork: 4500000,
-        // Estimated inverter, UPS, surge protection, and power-conditioning cost where supply is unstable.
-        unstablePower: 2800000,
+        // Network build-out model for facilities with no existing internal network.
+        // Formula: baseCost + (servicePoints * perServicePointCost) +
+        //          (max(servicePoints - extraScalingThreshold, 0) * extraPerPointCost)
+        noNetwork: {
+            // Fixed baseline for core router, first switch, rack, patching, and commissioning.
+            baseCost: 1800000,
+            // Incremental LAN rollout per service point (structured cabling, ports, AP extension, labor).
+            perServicePointCost: 650000,
+            // Beyond this count, longer cable runs and additional network segmentation become more common.
+            extraScalingThreshold: 6,
+            // Additional per-point uplift for larger footprints.
+            extraPerPointCost: 180000,
+        },
+        // Power resilience model for facilities with unstable electricity.
+        // Formula: baseCost + (servicePoints * perServicePointCost) +
+        //          (max(servicePoints - extraScalingThreshold, 0) * extraPerPointCost)
+        unstablePower: {
+            // Fixed baseline for inverter/control gear, protection devices, and installation setup.
+            baseCost: 1200000,
+            // Incremental backup capacity and wiring per service point.
+            perServicePointCost: 400000,
+            // Above this point count, larger battery banks and distribution expansion are typical.
+            extraScalingThreshold: 4,
+            // Additional per-point uplift for high-load facilities.
+            extraPerPointCost: 150000,
+        },
     },
 
     // One-time onboarding and enablement costs based on staff IT readiness.
@@ -97,18 +121,26 @@ Reviewed: 2026-03-13
     - onsite installation labor, configuration, testing, and contingency
 
 5. Estimation method used for unstablePower
-    The ₦2,800,000 estimate was not taken from a single public listing.
+    The model is not taken from a single public listing.
     It was derived from local inverter price benchmarks plus typical additional items needed in Nigerian facilities:
     - inverter hardware
     - batteries or extended backup capacity
     - UPS and surge protection
     - cabling, changeover/protection accessories, and installation labor
 
-6. Estimation method used for baseSetupCost, baseMonthlyCost, servicePointCost, servicePointMonthlyCost, staffUserCost, and trainingCosts
+6. Infrastructure scaling logic (real-world deployment pattern)
+    Infrastructure costs now scale with service points because each additional service point generally introduces:
+    - more cable distance and termination work
+    - additional switching and wireless distribution requirements
+    - higher concurrent load and backup power demand
+    - additional commissioning and validation effort
+    This produces a more realistic cost gradient than fixed flat infrastructure surcharges.
+
+7. Estimation method used for baseSetupCost, baseMonthlyCost, servicePointCost, servicePointMonthlyCost, staffUserCost, and trainingCosts
     Exact public Nigerian pricing for EMR implementation, software licensing, hospital onboarding, and support is usually quote-based rather than openly published.
     These values were therefore estimated from comparable Nigerian B2B healthcare IT and business software deployment patterns, using the infrastructure benchmarks above as the local market anchor.
 
-7. Practical interpretation of the software and services estimates
+8. Practical interpretation of the software and services estimates
     - baseSetupCost represents project kickoff, workflow discovery, configuration, data setup, and go-live support for one deployment
     - baseMonthlyCost represents baseline hosting, maintenance, and support retainership
     - servicePointCost represents per-department or per-location rollout effort
@@ -116,7 +148,7 @@ Reviewed: 2026-03-13
     - staffUserCost represents a reasonable per-user monthly licensing and support average for the Nigerian market
     - trainingCosts represent onsite onboarding sessions and staff enablement, scaled by staff readiness
 
-8. Important note
+9. Important note
     These are market-informed estimates for Nigeria, not vendor quotations.
     Actual bids can differ materially by hospital size, deployment model, hardware brand, power architecture, hosting choice, and whether the solution is locally hosted, hybrid, or fully cloud-based.
 */

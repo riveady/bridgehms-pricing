@@ -7,6 +7,28 @@ const resolvePatientTier = (patientsPerMonth, patientTiers) => {
     );
 };
 
+const resolveScalableInfrastructureCost = (adjustmentConfig, servicePoints) => {
+    // Backward compatibility: allow legacy flat numeric adjustment values.
+    if (typeof adjustmentConfig === "number") {
+        return adjustmentConfig;
+    }
+
+    const normalizedPoints = Math.max(1, Number(servicePoints) || 1);
+    const baseCost = Number(adjustmentConfig?.baseCost) || 0;
+    const perServicePointCost =
+        Number(adjustmentConfig?.perServicePointCost) || 0;
+    const extraScalingThreshold =
+        Number(adjustmentConfig?.extraScalingThreshold) || 0;
+    const extraPerPointCost = Number(adjustmentConfig?.extraPerPointCost) || 0;
+    const extraPoints = Math.max(0, normalizedPoints - extraScalingThreshold);
+
+    return (
+        baseCost +
+        normalizedPoints * perServicePointCost +
+        extraPoints * extraPerPointCost
+    );
+};
+
 const resolveDeploymentRecommendation = (input, config) => {
     const { patientsPerMonth, stablePower } = input;
     const { cloudPatientThreshold, hybridPatientThreshold } =
@@ -60,13 +82,19 @@ export function calculatePricing(input, config) {
     monthlyCost += staffLicensing;
 
     // Facilities without baseline infrastructure need extra setup work.
-    const infrastructureAdjustments =
-        (normalizedInput.hasNetwork
-            ? 0
-            : config.infrastructureAdjustments.noNetwork) +
-        (normalizedInput.stablePower
-            ? 0
-            : config.infrastructureAdjustments.unstablePower);
+    const noNetworkCost = normalizedInput.hasNetwork
+        ? 0
+        : resolveScalableInfrastructureCost(
+              config.infrastructureAdjustments.noNetwork,
+              normalizedInput.servicePoints,
+          );
+    const unstablePowerCost = normalizedInput.stablePower
+        ? 0
+        : resolveScalableInfrastructureCost(
+              config.infrastructureAdjustments.unstablePower,
+              normalizedInput.servicePoints,
+          );
+    const infrastructureAdjustments = noNetworkCost + unstablePowerCost;
     setupCost += infrastructureAdjustments;
 
     // Training costs are selected from configuration for maintainability.
