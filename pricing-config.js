@@ -5,7 +5,7 @@ export const pricingConfig = {
     // One-time EMR implementation and project kickoff fee typically charged per deployment.
     baseSetupCost: 3000000,
     // Starting recurring subscription for platform access, hosting, and baseline support.
-    baseMonthlyCost: 350000,
+    baseMonthlyCost: 35000,
 
     // Patient volume tiers that scale the monthly platform cost.
     // The first tier whose max is greater than or equal to the current volume is used.
@@ -23,9 +23,9 @@ export const pricingConfig = {
     // One-time setup cost added for each service point, department, or deployment location.
     servicePointCost: 450000,
     // Recurring monthly overhead added for each service point for support and maintenance.
-    servicePointMonthlyCost: 35000,
+    servicePointMonthlyCost: 3500,
     // Monthly licensing and support cost per active staff user.
-    staffUserCost: 12000,
+    staffUserCost: 1200,
 
     // One-time setup surcharges for missing or unreliable facility infrastructure.
     infrastructureAdjustments: {
