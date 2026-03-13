@@ -36,26 +36,26 @@ export const pricingConfig = {
         //          (max(servicePoints - extraScalingThreshold, 0) * extraPerPointCost)
         noNetwork: {
             // Fixed baseline for core router, first switch, rack, patching, and commissioning.
-            baseCost: 1800000,
+            baseCost: 800000,
             // Incremental LAN rollout per service point (structured cabling, ports, AP extension, labor).
-            perServicePointCost: 650000,
+            perServicePointCost: 60000,
             // Beyond this count, longer cable runs and additional network segmentation become more common.
             extraScalingThreshold: 6,
             // Additional per-point uplift for larger footprints.
-            extraPerPointCost: 180000,
+            extraPerPointCost: 80000,
         },
         // Power resilience model for facilities with unstable electricity.
         // Formula: baseCost + (servicePoints * perServicePointCost) +
         //          (max(servicePoints - extraScalingThreshold, 0) * extraPerPointCost)
         unstablePower: {
             // Fixed baseline for inverter/control gear, protection devices, and installation setup.
-            baseCost: 1200000,
+            baseCost: 1500000,
             // Incremental backup capacity and wiring per service point.
-            perServicePointCost: 400000,
+            perServicePointCost: 130000,
             // Above this point count, larger battery banks and distribution expansion are typical.
             extraScalingThreshold: 4,
             // Additional per-point uplift for high-load facilities.
-            extraPerPointCost: 150000,
+            extraPerPointCost: 50000,
         },
     },
 
