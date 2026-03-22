@@ -143,13 +143,12 @@ const updatePatientSliderVisuals = (slider, valueLabel, track, thumb) => {
 };
 
 const createInputReader = (elements) => () => ({
-    patientsPerMonth: clampNumber(Number(elements.patientsPerMonth.value), 0),
-    servicePoints: clampNumber(Number(elements.servicePoints.value), 1),
-    staffCount: clampNumber(Number(elements.staffCount.value), 1),
-    hasNetwork: elements.hasNetwork.checked,
-    stablePower: elements.stablePower.checked,
+    patientsPerMonth: clampNumber(Number(elements.patientsPerMonth?.value), 0),
+    servicePoints: clampNumber(Number(elements.servicePoints?.value), 1),
+    hasNetwork: Boolean(elements.hasNetwork?.checked),
+    stablePower: Boolean(elements.stablePower?.checked),
     trainingLevel:
-        elements.trainingLevelGroup.dataset.selectedTrainingLevel ||
+        elements.trainingLevelGroup?.dataset?.selectedTrainingLevel ||
         "basicSkills",
 });
 
@@ -219,7 +218,6 @@ const initializeCalculator = () => {
             "patients-per-month-thumb",
         ),
         servicePoints: document.getElementById("service-points"),
-        staffCount: document.getElementById("staff-count"),
         hasNetwork: document.getElementById("has-network"),
         stablePower: document.getElementById("stable-power"),
         trainingLevelGroup: document.getElementById("training-level-group"),
@@ -289,13 +287,14 @@ const initializeCalculator = () => {
     [
         elements.patientsPerMonth,
         elements.servicePoints,
-        elements.staffCount,
         elements.hasNetwork,
         elements.stablePower,
-    ].forEach((element) => {
-        element.addEventListener("input", recalculate);
-        element.addEventListener("change", recalculate);
-    });
+    ]
+        .filter((element) => element)
+        .forEach((element) => {
+            element.addEventListener("input", recalculate);
+            element.addEventListener("change", recalculate);
+        });
 
     recalculate();
 };
