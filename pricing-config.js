@@ -23,9 +23,7 @@ export const pricingConfig = {
     // One-time setup cost added for each service point, department, or deployment location.
     servicePointCost: 450000,
     // Recurring monthly overhead added for each service point for support and maintenance.
-    servicePointMonthlyCost: 3500,
-    // Monthly licensing and support cost per active staff user.
-    staffUserCost: 1200,
+    servicePointMonthlyCost: 12000,
 
     // One-time setup surcharges for missing or unreliable facility infrastructure.
     // These are modeled to scale with service points because larger footprints need

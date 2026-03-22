@@ -49,7 +49,6 @@ export function calculatePricing(input, config) {
     const normalizedInput = {
         patientsPerMonth: Math.max(0, Number(input.patientsPerMonth) || 0),
         servicePoints: Math.max(0, Number(input.servicePoints) || 0),
-        staffCount: Math.max(0, Number(input.staffCount) || 0),
         hasNetwork: Boolean(input.hasNetwork),
         stablePower: Boolean(input.stablePower),
         trainingLevel: input.trainingLevel,
@@ -76,10 +75,6 @@ export function calculatePricing(input, config) {
         normalizedInput.servicePoints * config.servicePointMonthlyCost;
     setupCost += servicePointSetupCost;
     monthlyCost += servicePointMonthlyCost;
-
-    // Staff count maps directly to user licensing.
-    const staffLicensing = normalizedInput.staffCount * config.staffUserCost;
-    monthlyCost += staffLicensing;
 
     // Facilities without baseline infrastructure need extra setup work.
     const noNetworkCost = normalizedInput.hasNetwork
@@ -117,7 +112,6 @@ export function calculatePricing(input, config) {
             servicePointCost: roundCurrency(
                 servicePointSetupCost + servicePointMonthlyCost,
             ),
-            staffLicensing: roundCurrency(staffLicensing),
             infrastructureAdjustments: roundCurrency(infrastructureAdjustments),
             trainingCost: roundCurrency(trainingCost),
             patientMultiplier: patientTier.multiplier,
